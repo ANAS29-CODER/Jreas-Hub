@@ -3,12 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\CourseRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class CourseService
 {
     public function __construct(
         protected CourseRepositoryInterface $repository
     ) {}
+
+    public function query(): Builder
+    {
+        return $this->repository->query();
+    }
 
     public function all(array $columns = ['*'])
     {

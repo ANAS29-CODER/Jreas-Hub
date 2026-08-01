@@ -3,12 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class CategoryService
 {
     public function __construct(
         protected CategoryRepositoryInterface $repository
     ) {}
+
+    public function query(): Builder
+    {
+        return $this->repository->query();
+    }
 
     public function all(array $columns = ['*'])
     {
