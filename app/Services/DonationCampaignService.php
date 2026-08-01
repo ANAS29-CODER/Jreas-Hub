@@ -3,12 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\DonationCampaignRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class DonationCampaignService
 {
     public function __construct(
         protected DonationCampaignRepositoryInterface $repository
     ) {}
+
+    public function query(): Builder
+    {
+        return $this->repository->query();
+    }
 
     public function all(array $columns = ['*'])
     {
