@@ -3,12 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\ActivityLogRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class ActivityLogService
 {
     public function __construct(
         protected ActivityLogRepositoryInterface $repository
     ) {}
+
+    public function query(): Builder
+    {
+        return $this->repository->query();
+    }
 
     public function all(array $columns = ['*'])
     {
