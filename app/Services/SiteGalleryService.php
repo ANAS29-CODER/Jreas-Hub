@@ -3,12 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\SiteGalleryRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class SiteGalleryService
 {
     public function __construct(
         protected SiteGalleryRepositoryInterface $repository
     ) {}
+
+    public function query(): Builder
+    {
+        return $this->repository->query();
+    }
 
     public function all(array $columns = ['*'])
     {
