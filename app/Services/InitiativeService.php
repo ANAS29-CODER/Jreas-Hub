@@ -3,12 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\InitiativeRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class InitiativeService
 {
     public function __construct(
         protected InitiativeRepositoryInterface $repository
     ) {}
+
+    public function query(): Builder
+    {
+        return $this->repository->query();
+    }
 
     public function all(array $columns = ['*'])
     {
