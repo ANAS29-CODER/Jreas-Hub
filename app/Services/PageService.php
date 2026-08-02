@@ -3,12 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\PageRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class PageService
 {
     public function __construct(
         protected PageRepositoryInterface $repository
     ) {}
+
+    public function query(): Builder
+    {
+        return $this->repository->query();
+    }
 
     public function all(array $columns = ['*'])
     {
