@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enums\CategoryType;
 use App\Enums\DeliveryType;
 use App\Enums\PublishStatus;
+use App\Filament\Concerns\HasCountBadge;
 use App\Filament\Resources\WorkshopResource\Pages;
 use App\Models\Category;
 use App\Models\Workshop;
@@ -20,15 +21,20 @@ use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class WorkshopResource extends Resource
 {
+    use HasCountBadge;
+
     protected static ?string $model = Workshop::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
@@ -38,6 +44,17 @@ class WorkshopResource extends Resource
     protected static ?string $modelLabel = 'ورشة عمل';
 
     protected static ?string $pluralModelLabel = 'ورش العمل';
+
+    protected static ?string $navigationGroup = 'المحتوى';
+
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title'];
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -204,6 +221,9 @@ class WorkshopResource extends Resource
                             ->where('type', CategoryType::Workshop->value)
                             ->pluck('name', 'id')
                     ),
+
+                TrashedFilter::make()
+                    ->label('المحذوفة'),
             ])
             ->actions([
                 Action::make('toggleStatus')
@@ -227,6 +247,13 @@ class WorkshopResource extends Resource
                     ->label('حذف')
                     ->requiresConfirmation()
                     ->action(fn (Workshop $record) => app(WorkshopService::class)->delete($record->getKey())),
+
+                RestoreAction::make()
+                    ->label('استعادة'),
+
+                ForceDeleteAction::make()
+                    ->label('حذف نهائي')
+                    ->requiresConfirmation(),
             ]);
     }
 

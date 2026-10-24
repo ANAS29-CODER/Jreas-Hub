@@ -10,6 +10,8 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestActivitiesWidget extends BaseWidget
 {
+    protected static bool $isLazy = true;
+
     protected static ?string $heading = 'آخر الأنشطة';
 
     public function table(Table $table): Table

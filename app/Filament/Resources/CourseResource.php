@@ -6,6 +6,7 @@ use App\Enums\CategoryType;
 use App\Enums\CourseLevel;
 use App\Enums\DeliveryType;
 use App\Enums\PublishStatus;
+use App\Filament\Concerns\HasCountBadge;
 use App\Filament\Resources\CourseResource\Pages;
 use App\Models\Category;
 use App\Models\Course;
@@ -22,15 +23,20 @@ use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class CourseResource extends Resource
 {
+    use HasCountBadge;
+
     protected static ?string $model = Course::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
@@ -40,6 +46,17 @@ class CourseResource extends Resource
     protected static ?string $modelLabel = 'دورة';
 
     protected static ?string $pluralModelLabel = 'الدورات';
+
+    protected static ?string $navigationGroup = 'المحتوى';
+
+    protected static ?int $navigationSort = 2;
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title'];
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -68,6 +85,28 @@ class CourseResource extends Resource
                 RichEditor::make('description')
                     ->label('الوصف')
                     ->columnSpanFull(),
+
+                Textarea::make('what_you_learn')
+                    ->label('ماذا ستتعلم (سطر لكل نقطة)')
+                    ->helperText('اكتب كل نقطة في سطر منفصل')
+                    ->rows(5)
+                    ->columnSpanFull(),
+
+                RichEditor::make('curriculum')
+                    ->label('المنهج الدراسي')
+                    ->columnSpanFull(),
+
+                TextInput::make('rating')
+                    ->label('التقييم (من 5)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(5)
+                    ->nullable(),
+
+                TextInput::make('reviews_count')
+                    ->label('عدد التقييمات')
+                    ->numeric()
+                    ->default(0),
 
                 Select::make('category_id')
                     ->label('التصنيف')
@@ -238,6 +277,9 @@ class CourseResource extends Resource
                             ->where('type', CategoryType::Course->value)
                             ->pluck('name', 'id')
                     ),
+
+                TrashedFilter::make()
+                    ->label('المحذوفة'),
             ])
             ->actions([
                 Action::make('toggleStatus')
@@ -261,6 +303,13 @@ class CourseResource extends Resource
                     ->label('حذف')
                     ->requiresConfirmation()
                     ->action(fn (Course $record) => app(CourseService::class)->delete($record->getKey())),
+
+                RestoreAction::make()
+                    ->label('استعادة'),
+
+                ForceDeleteAction::make()
+                    ->label('حذف نهائي')
+                    ->requiresConfirmation(),
             ]);
     }
 

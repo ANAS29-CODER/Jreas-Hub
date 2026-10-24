@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasCountBadge;
 use App\Filament\Resources\PageResource\Pages;
 use App\Models\Page;
 use App\Services\PageService;
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PageResource extends Resource
 {
+    use HasCountBadge;
+
     protected static ?string $model = Page::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
@@ -26,6 +29,10 @@ class PageResource extends Resource
     protected static ?string $modelLabel = 'صفحة';
 
     protected static ?string $pluralModelLabel = 'الصفحات';
+
+    protected static ?string $navigationGroup = 'الموقع';
+
+    protected static ?int $navigationSort = 3;
 
     protected static bool $canCreate = false;
 

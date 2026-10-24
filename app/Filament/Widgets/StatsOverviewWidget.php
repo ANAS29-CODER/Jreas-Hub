@@ -10,30 +10,39 @@ use App\Services\TrainingService;
 use App\Services\WorkshopService;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Cache;
 
 class StatsOverviewWidget extends BaseWidget
 {
+    protected static bool $isLazy = true;
+
     protected function getStats(): array
     {
-        $courses = app(CourseService::class)->query()
-            ->where('status', PublishStatus::Published->value)
-            ->count();
+        [$courses, $workshops, $initiatives, $trainings, $donationCampaigns] = Cache::remember(
+            'dashboard.stats-overview',
+            now()->addMinutes(5),
+            fn () => [
+                app(CourseService::class)->query()
+                    ->where('status', PublishStatus::Published->value)
+                    ->count(),
 
-        $workshops = app(WorkshopService::class)->query()
-            ->where('status', PublishStatus::Published->value)
-            ->count();
+                app(WorkshopService::class)->query()
+                    ->where('status', PublishStatus::Published->value)
+                    ->count(),
 
-        $initiatives = app(InitiativeService::class)->query()
-            ->where('status', PublishStatus::Published->value)
-            ->count();
+                app(InitiativeService::class)->query()
+                    ->where('status', PublishStatus::Published->value)
+                    ->count(),
 
-        $trainings = app(TrainingService::class)->query()
-            ->where('status', PublishStatus::Published->value)
-            ->count();
+                app(TrainingService::class)->query()
+                    ->where('status', PublishStatus::Published->value)
+                    ->count(),
 
-        $donationCampaigns = app(DonationCampaignService::class)->query()
-            ->where('status', PublishStatus::Published->value)
-            ->count();
+                app(DonationCampaignService::class)->query()
+                    ->where('status', PublishStatus::Published->value)
+                    ->count(),
+            ]
+        );
 
         return [
             Stat::make('الدورات المنشورة', $courses)

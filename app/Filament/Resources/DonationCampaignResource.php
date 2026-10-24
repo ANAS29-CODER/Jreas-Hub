@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\PublishStatus;
+use App\Filament\Concerns\HasCountBadge;
 use App\Filament\Resources\DonationCampaignResource\Pages;
 use App\Models\DonationCampaign;
 use App\Services\DonationCampaignService;
@@ -17,15 +18,20 @@ use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class DonationCampaignResource extends Resource
 {
+    use HasCountBadge;
+
     protected static ?string $model = DonationCampaign::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-heart';
@@ -35,6 +41,17 @@ class DonationCampaignResource extends Resource
     protected static ?string $modelLabel = 'حملة تبرع';
 
     protected static ?string $pluralModelLabel = 'حملات التبرع';
+
+    protected static ?string $navigationGroup = 'التبرعات';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title'];
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -163,6 +180,9 @@ class DonationCampaignResource extends Resource
                         PublishStatus::Published->value => 'منشور',
                         PublishStatus::Archived->value => 'مؤرشف',
                     ]),
+
+                TrashedFilter::make()
+                    ->label('المحذوفة'),
             ])
             ->actions([
                 Action::make('toggleStatus')
@@ -186,6 +206,13 @@ class DonationCampaignResource extends Resource
                     ->label('حذف')
                     ->requiresConfirmation()
                     ->action(fn (DonationCampaign $record) => app(DonationCampaignService::class)->delete($record->getKey())),
+
+                RestoreAction::make()
+                    ->label('استعادة'),
+
+                ForceDeleteAction::make()
+                    ->label('حذف نهائي')
+                    ->requiresConfirmation(),
             ]);
     }
 

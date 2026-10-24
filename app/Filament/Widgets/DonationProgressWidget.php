@@ -8,12 +8,16 @@ use Filament\Widgets\Widget;
 
 class DonationProgressWidget extends Widget
 {
+    protected static bool $isLazy = true;
+
     protected static string $view = 'filament.widgets.donation-progress-widget';
 
     protected function getCampaigns()
     {
         return app(DonationCampaignService::class)->query()
             ->where('status', PublishStatus::Published->value)
+            ->latest('start_date')
+            ->limit(5)
             ->get()
             ->map(function ($campaign) {
                 $goal = (float) $campaign->goal_amount;

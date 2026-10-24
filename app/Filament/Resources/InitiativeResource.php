@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\InitiativeType;
 use App\Enums\PublishStatus;
+use App\Filament\Concerns\HasCountBadge;
 use App\Filament\Resources\InitiativeResource\Pages;
 use App\Models\Initiative;
 use App\Services\InitiativeService;
@@ -18,15 +19,20 @@ use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class InitiativeResource extends Resource
 {
+    use HasCountBadge;
+
     protected static ?string $model = Initiative::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-light-bulb';
@@ -36,6 +42,17 @@ class InitiativeResource extends Resource
     protected static ?string $modelLabel = 'مبادرة';
 
     protected static ?string $pluralModelLabel = 'المبادرات';
+
+    protected static ?string $navigationGroup = 'المحتوى';
+
+    protected static ?int $navigationSort = 4;
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title'];
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -160,6 +177,9 @@ class InitiativeResource extends Resource
                         InitiativeType::Student->value => 'طلابية',
                         InitiativeType::Community->value => 'مجتمعية',
                     ]),
+
+                TrashedFilter::make()
+                    ->label('المحذوفة'),
             ])
             ->actions([
                 Action::make('toggleStatus')
@@ -183,6 +203,13 @@ class InitiativeResource extends Resource
                     ->label('حذف')
                     ->requiresConfirmation()
                     ->action(fn (Initiative $record) => app(InitiativeService::class)->delete($record->getKey())),
+
+                RestoreAction::make()
+                    ->label('استعادة'),
+
+                ForceDeleteAction::make()
+                    ->label('حذف نهائي')
+                    ->requiresConfirmation(),
             ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\ActivityLogType;
+use App\Filament\Concerns\HasCountBadge;
 use App\Filament\Resources\ActivityLogResource\Pages;
 use App\Models\ActivityLog;
 use App\Services\ActivityLogService;
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ActivityLogResource extends Resource
 {
+    use HasCountBadge;
+
     protected static ?string $model = ActivityLog::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
@@ -33,6 +36,10 @@ class ActivityLogResource extends Resource
     protected static ?string $modelLabel = 'نشاط';
 
     protected static ?string $pluralModelLabel = 'سجل الأنشطة';
+
+    protected static ?string $navigationGroup = 'الموقع';
+
+    protected static ?int $navigationSort = 2;
 
     public static function getEloquentQuery(): Builder
     {

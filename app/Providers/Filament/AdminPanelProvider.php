@@ -2,9 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Widgets\DonationProgressWidget;
-use App\Filament\Widgets\LatestActivitiesWidget;
-use App\Filament\Widgets\StatsOverviewWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -30,6 +27,13 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('Jireas Hub')
+            ->navigationGroups([
+                'المحتوى',
+                'التبرعات',
+                'الموقع',
+                'الإعدادات',
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -42,9 +46,6 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
-                StatsOverviewWidget::class,
-                LatestActivitiesWidget::class,
-                DonationProgressWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

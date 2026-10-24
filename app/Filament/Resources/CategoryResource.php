@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\CategoryType;
+use App\Filament\Concerns\HasCountBadge;
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
 use App\Services\CategoryService;
@@ -22,6 +23,8 @@ use Illuminate\Support\Str;
 
 class CategoryResource extends Resource
 {
+    use HasCountBadge;
+
     protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -31,6 +34,10 @@ class CategoryResource extends Resource
     protected static ?string $modelLabel = 'تصنيف';
 
     protected static ?string $pluralModelLabel = 'التصنيفات';
+
+    protected static ?string $navigationGroup = 'المحتوى';
+
+    protected static ?int $navigationSort = 1;
 
     public static function getEloquentQuery(): Builder
     {

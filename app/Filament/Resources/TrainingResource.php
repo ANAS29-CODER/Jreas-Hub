@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\CategoryType;
 use App\Enums\PublishStatus;
+use App\Filament\Concerns\HasCountBadge;
 use App\Filament\Resources\TrainingResource\Pages;
+use App\Models\Category;
 use App\Models\Training;
 use App\Services\TrainingService;
 use Filament\Forms\Components\DatePicker;
@@ -18,15 +21,20 @@ use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class TrainingResource extends Resource
 {
+    use HasCountBadge;
+
     protected static ?string $model = Training::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
@@ -36,6 +44,17 @@ class TrainingResource extends Resource
     protected static ?string $modelLabel = 'تدريب';
 
     protected static ?string $pluralModelLabel = 'التدريبات';
+
+    protected static ?string $navigationGroup = 'المحتوى';
+
+    protected static ?int $navigationSort = 5;
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title'];
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -61,6 +80,16 @@ class TrainingResource extends Resource
                 RichEditor::make('description')
                     ->label('الوصف')
                     ->columnSpanFull(),
+
+                Select::make('category_id')
+                    ->label('التصنيف')
+                    ->options(
+                        Category::query()
+                            ->where('type', CategoryType::Training->value)
+                            ->pluck('name', 'id')
+                    )
+                    ->searchable()
+                    ->nullable(),
 
                 TextInput::make('department')
                     ->label('القسم'),
@@ -165,6 +194,9 @@ class TrainingResource extends Resource
                         ->distinct()
                         ->pluck('university', 'university')
                         ->toArray()),
+
+                TrashedFilter::make()
+                    ->label('المحذوفة'),
             ])
             ->actions([
                 Action::make('toggleStatus')
@@ -188,6 +220,13 @@ class TrainingResource extends Resource
                     ->label('حذف')
                     ->requiresConfirmation()
                     ->action(fn (Training $record) => app(TrainingService::class)->delete($record->getKey())),
+
+                RestoreAction::make()
+                    ->label('استعادة'),
+
+                ForceDeleteAction::make()
+                    ->label('حذف نهائي')
+                    ->requiresConfirmation(),
             ]);
     }
 

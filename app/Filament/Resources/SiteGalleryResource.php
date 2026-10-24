@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasCountBadge;
 use App\Filament\Resources\SiteGalleryResource\Pages;
 use App\Models\SiteGallery;
 use App\Services\SiteGalleryService;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SiteGalleryResource extends Resource
 {
+    use HasCountBadge;
+
     protected static ?string $model = SiteGallery::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
@@ -27,6 +30,10 @@ class SiteGalleryResource extends Resource
     protected static ?string $modelLabel = 'صورة';
 
     protected static ?string $pluralModelLabel = 'معرض الصور';
+
+    protected static ?string $navigationGroup = 'الموقع';
+
+    protected static ?int $navigationSort = 1;
 
     public static function getEloquentQuery(): Builder
     {
