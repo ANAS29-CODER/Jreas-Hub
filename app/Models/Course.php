@@ -20,6 +20,10 @@ class Course extends Model
         'slug',
         'description',
         'short_description',
+        'what_you_learn',
+        'curriculum',
+        'rating',
+        'reviews_count',
         'category_id',
         'instructor_name',
         'type',
@@ -66,5 +70,10 @@ class Course extends Model
     public function media(): MorphMany
     {
         return $this->morphMany(Media::class, 'mediable');
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 }

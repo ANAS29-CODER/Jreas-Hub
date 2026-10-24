@@ -8,4 +8,7 @@ enum SettingGroup: string
     case Social = 'social';
     case Contact = 'contact';
     case Seo = 'seo';
+    case Donation = 'donation';
+    case Home = 'home';
+    case About = 'about';
 }

@@ -50,4 +50,9 @@ class DonationCampaign extends Model
     {
         return $this->morphMany(Media::class, 'mediable');
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 }
