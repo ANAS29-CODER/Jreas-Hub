@@ -16,6 +16,16 @@ class SettingService
         return $this->repository->all()->pluck('value', 'key')->all();
     }
 
+    /**
+     * Saved settings layered over config('site.defaults'); empty saved values fall back to the default.
+     */
+    public function getAllWithDefaults(): array
+    {
+        $saved = array_filter($this->getAllAsKeyValue(), fn ($value) => $value !== null && $value !== '');
+
+        return array_merge(config('site.defaults', []), $saved);
+    }
+
     public function saveMany(array $data, SettingGroup $group): void
     {
         foreach ($data as $key => $value) {
